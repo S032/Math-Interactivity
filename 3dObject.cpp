@@ -2,11 +2,13 @@
 
 _3dObject::_3dObject(std::string objName, std::string texName, unsigned int newShaderProgram)
     :
-    shaderProgram(newShaderProgram),
-    trans(glm::mat4(1.0f)),
     size(1.0f),
     pos(glm::vec3(0.0f)),
     angles(glm::vec3(0.0f)),
+    aChannel(1.0f),
+    ambientStr(0.2f),
+    trans(glm::mat4(1.0f)),
+    shaderProgram(newShaderProgram),
     color(glm::vec3(1.0f)),
     colormix(0.0f)
 {
@@ -17,17 +19,19 @@ _3dObject::_3dObject(std::string objName, std::string texName, unsigned int newS
 
 _3dObject::_3dObject(std::string objName, glm::vec3 newcolor, unsigned int newShaderProgram)
     :
-    shaderProgram(newShaderProgram),
-    trans(glm::mat4(1.0f)),
     size(1.0f),
     pos(glm::vec3(0.0f)),
     angles(glm::vec3(0.0f)),
+    aChannel(1.0f),
+    ambientStr(0.2f),
+    trans(glm::mat4(1.0f)),
+    shaderProgram(newShaderProgram),
     color(newcolor),
     colormix(1.0f)
 {
     mesh = objLoader.loadObjFile(objName);
     initVA();
-    //TextureLoad("box.jpg");//test
+    //TextureLoad("box.jpg");
 }
 
 _3dObject::~_3dObject() {}
@@ -44,7 +48,19 @@ void _3dObject::setangles(glm::vec3 newAngles) {
     angles = newAngles;
 }
 
-void _3dObject::draw(glm::mat4 proj_view, glm::vec3 camDir) {
+void _3dObject::setOpacity(float opacity) {
+    aChannel = opacity;
+}
+
+void _3dObject::setAmbient(float ambient) {
+    ambientStr = ambient;
+}
+
+glm::vec3 _3dObject::getPos() {
+    return pos;
+}
+
+void _3dObject::draw(glm::mat4 proj_view, glm::vec3 camPos, glm::vec3 lightPos) {
     glUseProgram(shaderProgram);
     glBindVertexArray(VAO);
 
@@ -56,24 +72,25 @@ void _3dObject::draw(glm::mat4 proj_view, glm::vec3 camDir) {
     model = glm::scale(model, glm::vec3(size/10, size/10, size/10));
     glm::mat4 mvp = proj_view * model;
 
+    //fragmentShader uniforms
     GLuint colorLoc = glGetUniformLocation(shaderProgram, "color");
     glUniform3fv(colorLoc, 1, glm::value_ptr(color));
-
     GLuint lightColorLoc = glGetUniformLocation(shaderProgram, "lightColor");
     glUniform3fv(lightColorLoc, 1, glm::value_ptr(glm::vec4(1.0f)));
-
     GLuint lightPosLoc = glGetUniformLocation(shaderProgram, "lightPos");
-    glUniform3fv(lightPosLoc, 1, glm::value_ptr(glm::vec3(0.0f, 2.0f, 3.5f)));
-
+    glUniform3fv(lightPosLoc, 1, glm::value_ptr(lightPos));
     GLuint camPosLoc = glGetUniformLocation(shaderProgram, "camPos");
-    glUniform3fv(camPosLoc, 1, glm::value_ptr(camDir));
+    glUniform3fv(camPosLoc, 1, glm::value_ptr(camPos));
+    GLuint aChanelLoc = glGetUniformLocation(shaderProgram, "aChanel");
+    glUniform1f(aChanelLoc, aChannel);
+    GLuint ambientStrLoc = glGetUniformLocation(shaderProgram, "ambietStrength");
+    glUniform1f(ambientStrLoc, ambientStr);
 
-
-    GLuint objectPosLoc = glGetUniformLocation(shaderProgram, "objectPos");
-    glUniform3fv(objectPosLoc, 1, glm::value_ptr(glm::vec3(0.0f, 0.0f, 2.0f)));
-
+    //vertexShader uniforms
     GLuint mvpLoc = glGetUniformLocation(shaderProgram, "mvp");
     glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(mvp));
+    GLuint modelLoc = glGetUniformLocation(shaderProgram, "model");
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
     glDrawElements(GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, 0);   
     glBindVertexArray(0);

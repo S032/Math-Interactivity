@@ -18,6 +18,8 @@ private:
     float size;
     glm::vec3 pos;
     glm::vec3 angles;
+    float aChannel;
+    float ambientStr;
     glm::mat4 trans;
     unsigned int VBO;
     unsigned int VAO;
@@ -34,7 +36,10 @@ public:
     void setsize(float newSize);
     void setpos(glm::vec3 newPos);
     void setangles(glm::vec3 newAngles);
-    void draw(glm::mat4 proj_view, glm::vec3 camDir);
+    void setOpacity(float opacity);
+    void setAmbient(float ambient);
+    glm::vec3 getPos();
+    void draw(glm::mat4 proj_view, glm::vec3 camPos, glm::vec3 lightPos);
 private:
     void initVA();
     void TextureLoad(std::string texName);

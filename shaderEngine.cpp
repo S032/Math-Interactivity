@@ -11,7 +11,7 @@ ShaderEngine::ShaderEngine(int newWinWidth, int newWinHeight, const char* newWin
     winTitle(newWinTitle)
 {
     cameraProps_t camProps;
-    camProps.FOV = 45.0f;
+    camProps.FOV = 90.0f;
     camProps.zFar = 100.0f;
     camProps.speed = 0.2f;
     camProps.sensivity = 1.0f;
@@ -39,6 +39,8 @@ void ShaderEngine::initWindow(bool polygonal) {
     }
     glfwMakeContextCurrent(win);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_ALPHA_TEST);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
     if (polygonal) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glViewport(0, 0, winWidth, winHeight);
@@ -151,9 +153,6 @@ void ShaderEngine::start() {
     _3dObject cube("cube.obj", glm::vec3(0.2f, 0.2f, 1.0f), shaderProgram);
     _3dObject lightcube("cube.obj", glm::vec3(1.0f, 1.0f, 1.0f), shaderProgram);
     _3dObject chair("chair.obj", glm::vec3(0.5882f, 0.2941f, 0.0f),  shaderProgram);
-    float angleX = 0.0f;
-    float angleY = 0.0f;
-    float angleZ = 0.0f;
     while(!glfwWindowShouldClose(win))
     {
         processInput();
@@ -164,27 +163,26 @@ void ShaderEngine::start() {
 
         glm::mat4 proj_view = cam->getProjViewMat();
 
-        glm::vec3 camDir = cam->getCamPos();
-        printf("camDir: %.1f %.1f %.1f\n", camDir.x, camDir.y, camDir.z);
+        glm::vec3 camPos = cam->getCamPos();
 
+        lightcube.setsize(5.0f);
+        lightcube.setAmbient(1.0f);
+        lightcube.setpos(glm::vec3(glm::cos(glfwGetTime()*2) * 4, glm::sin(glfwGetTime()*2) * 4, glm::sin(glfwGetTime()*2) * 4));
+        glm::vec3 lightPos = lightcube.getPos();
+        lightcube.setangles(glm::vec3(glfwGetTime() * 65, glfwGetTime() * 65, 0.0f));
+        lightcube.draw(proj_view, camPos, lightPos);
 
         chair.setsize(5.0f);
         chair.setpos(glm::vec3(2.0f + 0.5f, 2.0f - 1.0f, 0.0f));
-        chair.draw(proj_view, camDir);
-
-        lightcube.setsize(5.0f);
-        lightcube.setpos(glm::vec3(0.0f, 2.0f, 3.5f));
-        lightcube.draw(proj_view, camDir);
+        chair.draw(proj_view, camPos, lightPos);
 
         cube.setsize(20.0f);
-        cube.setpos(glm::vec3(0.0f, 0.0f, 0.0f));
-        cube.draw(proj_view, camDir);
+        cube.setOpacity(1.0f);    
         cube.setpos(glm::vec3(2.0f, 0.0f, 0.0f));
-        cube.draw(proj_view, camDir);
-        cube.setpos(glm::vec3(0.0f, 0.0f, 2.0f));
-        cube.draw(proj_view, camDir);
+        cube.draw(proj_view, camPos, lightPos);
+        cube.setOpacity(0.5f);
         cube.setpos(glm::vec3(0.0f, 0.0f, 4.0f));
-        cube.draw(proj_view, camDir);
+        cube.draw(proj_view, camPos, lightPos);
 
         glfwSwapBuffers(win);
         glfwPollEvents();    

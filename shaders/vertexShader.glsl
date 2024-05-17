@@ -8,11 +8,12 @@ out vec3 normal;
 out vec3 vPos;
 
 uniform mat4 mvp;
+uniform mat4 model;
 
 void main()
 {
     texCord = aTex;
-    normal = aNorm;
+    normal = mat3(transpose(inverse(model))) * aNorm;
     vPos = aPos;
     gl_Position = mvp * vec4(aPos, 1.0);
 }

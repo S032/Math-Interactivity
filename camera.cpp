@@ -6,10 +6,10 @@ Camera::Camera(cameraProps_t camProps)
     zFar(camProps.zFar),
     speed(camProps.speed),
     sensivity(camProps.sensivity),
-    pos(camProps.pos),
-    target(camProps.target),
     winWidth(camProps.winWidth),
-    winHeight(camProps.winHeight)
+    winHeight(camProps.winHeight),
+    pos(camProps.pos),
+    target(camProps.target)
 {
     proj = glm::perspective(glm::radians(FOV), winWidth/winHeight, 0.1f, zFar);
     camRot = {0.0f, 0.0f, 0.0f};

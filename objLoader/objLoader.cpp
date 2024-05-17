@@ -43,11 +43,11 @@ Mesh ObjLoader::loadObjFile(const std::string& objName) {
             for (VertexData vertex : verticesz) {
                 // is there such vertex within hashmap
                 std::vector<int> indecites = {vertex.vertexIndex, vertex.textureIndex, vertex.normalIndex};
-                printf("V: %d/%d/%d ", vertex.vertexIndex, vertex.textureIndex, vertex.normalIndex); 
+                //printf("V: %d/%d/%d ", vertex.vertexIndex, vertex.textureIndex, vertex.normalIndex); 
                 if (uniqVertices.find(indecites)
                     == uniqVertices.end())
                 {
-                    printf("N: %ld\n", mesh.vertAmount);
+                    //printf("N: %ld\n", mesh.vertAmount);
                     uniqVertices[indecites] = mesh.vertAmount;
                     mesh.indices.push_back(mesh.vertAmount);
                     mesh.vertAmount++;
@@ -62,7 +62,7 @@ Mesh ObjLoader::loadObjFile(const std::string& objName) {
                 }
                 else {
                     mesh.indices.push_back(uniqVertices[indecites]);
-                    printf("N: %d\n", uniqVertices[indecites]);
+                    //printf("N: %d\n", uniqVertices[indecites]);
                 }
             }
         }
@@ -104,6 +104,7 @@ std::vector<VertexData> ObjLoader::faceParse(const std::string& faceString) {
 
 
 void ObjLoader::printMesh(Mesh mesh) {
+    mesh = mesh;
     /*
     printf("vertices:\n");
     for (Vertex3f vertex : mesh.vertices) {
