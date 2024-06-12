@@ -44,6 +44,8 @@ private:
 public:
     Camera(cameraProps_t camProps);
     glm::mat4 getProjViewMat();
+    glm::mat4 getProjMat();
+    glm::mat4 getViewMat();
     glm::vec3 getCamDir();
     glm::vec3 getCamPos();
     void move(int direction);

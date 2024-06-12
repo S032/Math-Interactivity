@@ -25,13 +25,9 @@ private:
     unsigned int VAO;
     unsigned int EBO;
     unsigned int shaderProgram;
-    //texture
-    unsigned int texture;
-    glm::vec3 color;
-    float colormix;
+    glm::vec4 color;
 public:
-    _3dObject(std::string objName, std::string texName, unsigned int newShaderProgram);
-    _3dObject(std::string objName, glm::vec3 newcolor, unsigned int newShaderProgram);
+    _3dObject(std::string objName, glm::vec4 newcolor, unsigned int newShaderProgram);
     ~_3dObject();
     void setsize(float newSize);
     void setpos(glm::vec3 newPos);
@@ -42,6 +38,5 @@ public:
     void draw(glm::mat4 proj_view, glm::vec3 camPos, glm::vec3 lightPos);
 private:
     void initVA();
-    void TextureLoad(std::string texName);
 };
 #endif

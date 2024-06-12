@@ -1,8 +1,21 @@
 #include "shaderEngine.h"
 
+float currentWinWidth = 0;
+float currentWinHeight = 0;
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+    currentWinWidth = width;
+    currentWinHeight = height;
     glViewport(0, 0, width, height);
-}  
+}
+
+//mouse
+float mousexpos = 0;
+float mouseypos = 0;
+void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
+    mousexpos = xpos;
+    mouseypos = ypos;
+}
+
 
 ShaderEngine::ShaderEngine(int newWinWidth, int newWinHeight, const char* newWinTitle, bool polygonal)
     :
@@ -13,7 +26,7 @@ ShaderEngine::ShaderEngine(int newWinWidth, int newWinHeight, const char* newWin
     cameraProps_t camProps;
     camProps.FOV = 90.0f;
     camProps.zFar = 100.0f;
-    camProps.speed = 0.2f;
+    camProps.speed = 0.05f;
     camProps.sensivity = 1.0f;
     camProps.pos = glm::vec3(0.0f, 0.0f, 5.0f);
     camProps.target = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -44,6 +57,8 @@ void ShaderEngine::initWindow(bool polygonal) {
     glEnable(GL_BLEND);
     if (polygonal) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glViewport(0, 0, winWidth, winHeight);
+
+    glfwSetCursorPosCallback(win, mouse_callback);
     glfwSetFramebufferSizeCallback(win, framebuffer_size_callback);
 }
 
@@ -144,24 +159,51 @@ void ShaderEngine::processInput() {
     if (glfwGetKey(win, GLFW_KEY_DOWN) == GLFW_PRESS) {
         cam->rotate(CAM_DOWN);
     }
+    if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+            std::cout << "Левая кнопка мыши нажата" << std::endl;
+    }
 }
 
-void ShaderEngine::display() {
+void ShaderEngine::intersectHandler(glm::mat4 proj, glm::mat4 view, glm::vec3 rayOrigin, _3dObject &sphere) {
+    float normxpos = (2 * mousexpos) / currentWinWidth - 1;
+    float normypos = (2 * mouseypos) / currentWinHeight - 1;
+    glm::vec4 point = glm::vec4(normxpos, -normypos, -1, 1);
+    point = glm::inverse(proj) * point;
+    point.w = 0;
+    point = glm::inverse(view) * point;
+    glm::vec3 rayDir = glm::vec3(point.x, point.y, point.z);
+    rayDir = glm::normalize(rayDir);
+
+    float t = 1;
+    float step = 0.5f;
+    glm::vec3 ray = rayOrigin + (rayDir * t);
+    for (float t = 1; t <= 200; t += step) {
+        ray = rayOrigin + (rayDir * t);
+        if (ray.y <= 0) break;
+    }
+    sphere.setpos(glm::vec3(ray.x, 0, ray.z));
+
+
+
+    printf("after: x(%.4f) y(%.4f), z(%.4f)\n",
+        rayDir.x, rayDir.y, rayDir.z);
 }
 
 void ShaderEngine::start() {
-    _3dObject cube("cube.obj", glm::vec3(0.2f, 0.2f, 1.0f), shaderProgram);
-    _3dObject lightcube("cube.obj", glm::vec3(1.0f, 1.0f, 1.0f), shaderProgram);
-    _3dObject chair("chair.obj", glm::vec3(0.5882f, 0.2941f, 0.0f),  shaderProgram);
+    _3dObject lightcube("cube.obj", glm::vec4(1.0f, 1.0f, 1.0f, 0), shaderProgram);
+    _3dObject field("field.obj", glm::vec4(1.0f, 1.0f, 1.0f, 0.2f), shaderProgram);
+    _3dObject sphere("sphere.obj", glm::vec4(0.2f, 0.2f, 1.0f, 1.0f),  shaderProgram);
     while(!glfwWindowShouldClose(win))
     {
         processInput();
 
-        //display();
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glm::mat4 proj_view = cam->getProjViewMat();
+        glm::mat4 proj = cam->getProjMat();
+        glm::mat4 view = cam->getViewMat();
+
+        glm::mat4 proj_view = proj * view;
 
         glm::vec3 camPos = cam->getCamPos();
 
@@ -169,20 +211,15 @@ void ShaderEngine::start() {
         lightcube.setAmbient(1.0f);
         lightcube.setpos(glm::vec3(glm::cos(glfwGetTime()*2) * 4, glm::sin(glfwGetTime()*2) * 4, glm::sin(glfwGetTime()*2) * 4));
         glm::vec3 lightPos = lightcube.getPos();
-        lightcube.setangles(glm::vec3(glfwGetTime() * 65, glfwGetTime() * 65, 0.0f));
         lightcube.draw(proj_view, camPos, lightPos);
 
-        chair.setsize(5.0f);
-        chair.setpos(glm::vec3(2.0f + 0.5f, 2.0f - 1.0f, 0.0f));
-        chair.draw(proj_view, camPos, lightPos);
+        field.setsize(200.0f);
+        field.draw(proj_view, camPos, lightPos);
 
-        cube.setsize(20.0f);
-        cube.setOpacity(1.0f);    
-        cube.setpos(glm::vec3(2.0f, 0.0f, 0.0f));
-        cube.draw(proj_view, camPos, lightPos);
-        cube.setOpacity(0.5f);
-        cube.setpos(glm::vec3(0.0f, 0.0f, 4.0f));
-        cube.draw(proj_view, camPos, lightPos);
+        sphere.setsize(5.0f);
+        sphere.draw(proj_view, camPos, lightPos);
+
+        intersectHandler(proj, view, camPos, sphere);
 
         glfwSwapBuffers(win);
         glfwPollEvents();    

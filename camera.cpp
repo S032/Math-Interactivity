@@ -100,6 +100,14 @@ glm::mat4 Camera::getProjViewMat() {
     return proj * view;
 }
 
+glm::mat4 Camera::getProjMat() {
+    return proj;
+}
+
+glm::mat4 Camera::getViewMat() {
+    return view;
+}
+
 void Camera::updateViewMat() {
     view = glm::lookAt(pos, pos + front, glm::vec3(0.0f, 1.0f, 0.0f));
 }

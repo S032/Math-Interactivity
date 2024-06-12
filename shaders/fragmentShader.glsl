@@ -1,5 +1,4 @@
 #version 330 core
-in vec2 texCord;
 in vec3 normal;
 in vec3 vPos;
 
@@ -18,7 +17,7 @@ void main()
     vec3 _normal = normalize(normal);
     vec3 ambient = ambietStrength * lightColor;
     vec3 lightDir = normalize(lightPos - vPos);
-    vec3 diffuse = max(dot(_normal, lightDir), 0.0) * lightColor;
+    vec3 diffuse = max(dot(_normal, lightDir), 0.0) + 0.2 * lightColor;
     float specularStrength = 0.4;
     vec3 viewDir = normalize(camPos - vPos);
     vec3 reflectDir = reflect(-lightDir, _normal);

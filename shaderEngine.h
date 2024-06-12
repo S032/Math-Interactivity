@@ -29,7 +29,7 @@ private:
     std::string readGLSLfile(const std::string& fileName);
     void checkStatus(unsigned int shader, unsigned int checkStatus);
     void processInput();
-    void display();
+    void intersectHandler(glm::mat4 proj, glm::mat4 view, glm::vec3 rayOrigin, _3dObject &sphere);
 };
 
 #endif
