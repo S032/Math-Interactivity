@@ -4,7 +4,7 @@ CC = g++
 
 CFLAGS = -lGLEW -lglfw -lSOIL -lGL -lGLU -lX11 -lpthread -lXrandr  -ldl -Wall -Wextra -g
 
-SOURCES = main.cpp 3dObject.cpp objLoader/objLoader.cpp shaderEngine.cpp camera.cpp
+SOURCES = main.cpp 3dObject.cpp objLoader/objLoader.cpp shaderEngine.cpp camera.cpp DotHandler.cpp PremitiveDrawer.cpp
 
 OBJECTS = $(SOURCES: .cpp=.o)
 

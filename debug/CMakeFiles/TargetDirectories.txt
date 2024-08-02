@@ -1,0 +1,3 @@
+/home/nadgox/MyProjects/Math-Interactivity/debug/CMakeFiles/3DEngine.dir
+/home/nadgox/MyProjects/Math-Interactivity/debug/CMakeFiles/edit_cache.dir
+/home/nadgox/MyProjects/Math-Interactivity/debug/CMakeFiles/rebuild_cache.dir
