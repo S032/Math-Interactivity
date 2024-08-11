@@ -8,7 +8,8 @@ Render::Render(unsigned int &_shaderProgram) {
 }
 
 Render::~Render() {
-
+    glDeleteProgram(shaderProgram);
+    //glew Terminate?
 }
 
 void Render::initShaderProgram() {

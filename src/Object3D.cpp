@@ -14,7 +14,11 @@ Object3D::Object3D(objectType premitive, glm::vec4 newColor, unsigned int newSha
     initVA();
 }
 
-Object3D::~Object3D() {}
+Object3D::~Object3D() {
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
+}
 
 void Object3D::createPremitive(objectType premitive) {
     PremitiveGenerator premitiveGenerator;
